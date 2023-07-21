@@ -3,11 +3,6 @@
 # Contributor: nanodude
 # Contributor: Tim Stahlhut <stahta01@gmail.com>
 
-_bootstrap=0
-if [[ ${MSYSTEM} == CLANG64 || ${MSYSTEM} == UCRT64 ]]; then
-  _bootstrap=1
-fi
-
 _realname=newlib
 _target=arm-none-eabi
 _gccver=13.1.0
@@ -28,16 +23,15 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-autotools"
              "${MINGW_PACKAGE_PREFIX}-gmp"
              "${MINGW_PACKAGE_PREFIX}-mpc"
              "${MINGW_PACKAGE_PREFIX}-mpfr"
-             "${MINGW_PACKAGE_PREFIX}-isl"
-             $( (( _bootstrap )) || echo "${MINGW_PACKAGE_PREFIX}-${_target}-gcc"))
+             "${MINGW_PACKAGE_PREFIX}-isl")
 options=('staticlibs' '!strip' '!emptydirs')
 source=(
     "https://sourceware.org/pub/newlib/newlib-${pkgver}.tar.gz"
-    $( (( !_bootstrap )) || echo "https://ftp.gnu.org/gnu/gcc/gcc-${_gccver}/gcc-${_gccver}.tar.xz")
+    "https://ftp.gnu.org/gnu/gcc/gcc-${_gccver}/gcc-${_gccver}.tar.xz"
 )
 sha256sums=(
     '83a62a99af59e38eb9b0c58ed092ee24d700fff43a22c03e433955113ef35150'
-    $( (( !_bootstrap )) || echo '61d684f0aa5e76ac6585ad8898a2427aade8979ed5e7f85492286c4dfc13ee86')
+    '61d684f0aa5e76ac6585ad8898a2427aade8979ed5e7f85492286c4dfc13ee86'
 )
 noextract=("newlib-${pkgver}.tar.gz")
 
@@ -46,11 +40,10 @@ prepare() {
     # bsdtar doesn't like the symlinks
     tar -xf newlib-${pkgver}.tar.gz
 
-    if (( _bootstrap )); then
-      cd ${srcdir}/gcc-${_gccver}
-      mkdir gcc-build-${MSYSTEM}
-      mkdir gcc-install-${MSYSTEM}
-    fi
+    cd ${srcdir}/gcc-${_gccver}
+    mkdir gcc-build-${MSYSTEM}
+    mkdir gcc-install-${MSYSTEM}
+
 
     cd ${srcdir}/newlib-${pkgver}
     mkdir {newlib,nano}-build-${MSYSTEM}
@@ -106,10 +99,10 @@ _build_gcc() {
 }
 
 build() {
-    if (( _bootstrap )); then
-      _build_gcc
-      export PATH="${srcdir}/gcc-${_gccver}/gcc-install-${MSYSTEM}/bin:${PATH}"
-    fi
+
+    _build_gcc
+    export PATH="${srcdir}/gcc-${_gccver}/gcc-install-${MSYSTEM}/bin:${PATH}"
+
 
     cd ${srcdir}/newlib-${pkgver}/newlib-build-${MSYSTEM}
 
