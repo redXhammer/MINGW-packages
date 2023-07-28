@@ -82,8 +82,8 @@ jobs:
 
       - name: Move Checkout
         run: |
-          If (Test-Path "C:\_") { rm -r -fo "C:\_" }
-          Copy-Item -Path ".\temp" -Destination "C:\_" -Recurse
+          If (Test-Path "D:\_") { rm -r -fo "D:\_" }
+          Copy-Item -Path ".\temp" -Destination "D:\_" -Recurse
 
       - name: CI-Build
         shell: msys2 {0}
@@ -99,7 +99,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.msystem }}-packages
-          path: C:/_/artifacts/*.pkg.tar.*
+          path: D:/_/artifacts/*.pkg.tar.*
           if-no-files-found: ignore
 
       - name: "Upload dumps"
@@ -114,7 +114,7 @@ jobs:
         if: ${{ always() }}
         continue-on-error: true
         run: |
-          If (Test-Path "C:\_") { rm -r -fo "C:\_" }
+          If (Test-Path "D:\_") { rm -r -fo "D:\_" }
           msys2 -c 'mv -f /etc/pacman.conf.bak /etc/pacman.conf'
           msys2 -c 'pacman --noconfirm -Suuy'
           msys2 -c 'pacman --noconfirm -Suu'
@@ -128,7 +128,7 @@ jobs:
         continue-on-error: true
         with:
           name: UCRT64-packages
-          path: C:/_/artifacts
+          path: D:/_/artifacts
       - name: Check whether to Run
         id: check-run
         run: |
