@@ -23,7 +23,7 @@ jobs:
           # { msystem: CLANGARM64, runner: ['Windows', 'ARM64', 'CI'] }
         ]
     name: ${{ matrix.msystem }}
-    runs-on: ${{ matrix.runner }}
+    runs-on: self-hosted
     env:
       MSYS: "winjitdebug"
     steps:
