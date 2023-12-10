@@ -38,12 +38,14 @@ build() {
   mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
 
   ../${_realname}-${pkgver}/configure \
+      CPPFLAGS="$REGEX_INCLUDES $GNUTLS_INCLUDES $INTL_INCLUDES" \
+      LDFLAGS="$REGEX_LDFLAGS -lregex $GNUTLS_LDFLAGS $INTL_LDFLAGS -lintl -liconv" \
       --prefix=${MINGW_PREFIX} \
       --build=${MINGW_CHOST} \
       --host=${MINGW_CHOST} \
       --target=${MINGW_CHOST} \
       --with-guis='' \
-	  --enable-binreloc=no
+      --enable-binreloc=no
 
   make
 }
