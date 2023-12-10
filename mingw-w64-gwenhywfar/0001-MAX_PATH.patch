@@ -1,0 +1,42 @@
+diff -urN old/src/base/pathmanager.c new/src/base/pathmanager.c
+--- old/src/base/pathmanager.c	2021-09-10 16:31:02.000000000 +0200
++++ new/src/base/pathmanager.c	2023-12-10 13:51:28.950584700 +0100
+@@ -46,6 +46,10 @@
+ # include <windows.h>
+ #endif
+ 
++#ifndef MAX_PATH
++# define MAX_PATH 200
++#endif
++
+ 
+ static GWEN_DB_NODE *gwen__paths=0;
+ 
+diff -urN old/src/base/plugin.c new/src/base/plugin.c
+--- old/src/base/plugin.c	2017-08-07 21:02:21.000000000 +0200
++++ new/src/base/plugin.c	2023-12-10 13:51:52.687651200 +0100
+@@ -52,6 +52,10 @@
+ # include <windows.h>
+ #endif
+ 
++#ifndef MAX_PATH
++# define MAX_PATH 200
++#endif
++
+ static GWEN_PLUGIN_MANAGER_LIST *gwen_plugin_manager__list=0;
+ 
+ 
+diff -urN old/src/sio/syncio_tls.c new/src/sio/syncio_tls.c
+--- old/src/sio/syncio_tls.c	2021-10-01 23:17:02.000000000 +0200
++++ new/src/sio/syncio_tls.c	2023-12-10 13:52:36.154853500 +0100
+@@ -53,7 +53,9 @@
+ #include <gnutls/x509.h>
+ #include <gcrypt.h>
+ 
+-
++#ifndef MAX_PATH
++# define MAX_PATH 200
++#endif
+ 
+ GWEN_INHERIT(GWEN_SYNCIO, GWEN_SYNCIO_TLS)
+ 
