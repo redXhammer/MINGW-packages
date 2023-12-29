@@ -1,0 +1,68 @@
+# Maintainer: Alf Crüger <a.crueger at o2mail.de>
+
+_realname=aqbanking
+
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=6.5.4
+pkgrel=1
+pkgdesc=" (mingw-w64)"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64') 
+url='http://www.aquamaniac.de/'
+license=('gpl2')
+depends=("${MINGW_PACKAGE_PREFIX}-glib2"
+         "${MINGW_PACKAGE_PREFIX}-gwenhywfar"
+         "${MINGW_PACKAGE_PREFIX}-xmlsec"
+         )
+makedepends=(
+  "${MINGW_PACKAGE_PREFIX}-cc"
+  "${MINGW_PACKAGE_PREFIX}-autotools"
+)
+
+source=("https://www.aquamaniac.de/rdm/attachments/download/499/${_realname}-${pkgver}.tar.gz")
+sha256sums=('0d16ceae76f0718e466638f4547a8b14927f1d8d98322079cd6481adde30ac99')
+
+prepare() {
+  cd "${srcdir}"/${_realname}-${pkgver}
+  
+  #patch -p1 -i "${srcdir}/0001-MAX_PATH.patch"
+  #patch -Np1 -i "${srcdir}/0001-MAX_PATH.patch"
+  #patch -p1 -i "${srcdir}/0001-MAX_PATH.patch"
+
+  #autoreconf -fiv
+}
+
+build() {
+  mkdir -p "${srcdir}"/build-${MSYSTEM} && cd "${srcdir}"/build-${MSYSTEM}
+
+  ../${_realname}-${pkgver}/configure \
+      --prefix=${MINGW_PREFIX} \
+      --build=${MINGW_CHOST} \
+      --host=${MINGW_CHOST} \
+      --target=${MINGW_CHOST} 
+
+  make
+}
+
+package() {
+  cd "${srcdir}"/build-${MSYSTEM}
+  make install DESTDIR="${pkgdir}"
+
+  local PREFIX_WIN=$(cygpath -wm ${MINGW_PREFIX})
+  echo "Replaceing $PREFIX_WIN"
+  for _f in "${pkgdir}${MINGW_PREFIX}"/lib/cmake/**/*.cmake; do
+    sed -e "s|${PREFIX_WIN}|\$\{PACKAGE_PREFIX_DIR\}|g" -i ${_f}
+    sed -e "s|${MINGW_PREFIX}|\$\{PACKAGE_PREFIX_DIR\}|g" -i ${_f}
+  done
+
+  for pcfile in "${pkgdir}${MINGW_PREFIX}"/lib/pkgconfig/*.pc; do
+    sed -s "s|${PREFIX_WIN}|${MINGW_PREFIX}|g" -i "${pcfile}"
+  done
+
+  sed -e "s|${PREFIX_WIN}|${MINGW_PREFIX}|g" -i "${pkgdir}${MINGW_PREFIX}/bin/aqbanking-config"
+}
+
+
+#      CPPFLAGS="$REGEX_INCLUDES $GNUTLS_INCLUDES $INTL_INCLUDES" \
+#      LDFLAGS="$REGEX_LDFLAGS -lregex $GNUTLS_LDFLAGS $INTL_LDFLAGS -lintl -liconv" \
