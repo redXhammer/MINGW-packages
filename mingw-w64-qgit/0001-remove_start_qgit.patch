@@ -1,0 +1,52 @@
+diff -ur B/src/src.pro A/src/src.pro
+--- B/src/src.pro	2022-01-11 01:33:53.000000000 +0100
++++ A/src/src.pro	2024-01-08 14:02:27.262814000 +0100
+@@ -1,9 +1,5 @@
+-# Under Windows launch script start_qgit.bat needs the
+-# value GIT_EXEC_DIR to be set to the git bin directory
+-GIT_EXEC_DIR = "$$(ProgramFiles)\\Git\\bin"
+-
+ # Under Windows uncomment following line to enable console messages
+-#CONFIG += ENABLE_CONSOLE_MSG
++CONFIG += ENABLE_CONSOLE_MSG
+ 
+ # check for Qt >= 5.11.0
+ CUR_QT = $$[QT_VERSION]
+@@ -35,7 +31,6 @@
+ # Platform dependent stuff
+ win32 {
+     TARGET = qgit
+-    target.path = $$GIT_EXEC_DIR
+     CONFIG += windows embed_manifest_exe
+     RC_FILE = app_icon.rc
+ }
+@@ -97,29 +93,3 @@
+ DISTFILES += ../COPYING ../exception_manager.txt ../README.adoc ../README_WIN.txt
+ DISTFILES += ../qgit_inno_setup.iss ../QGit4.sln
+ 
+-# Here we generate a batch called start_qgit.bat used, under Windows only,
+-# to start qgit with proper PATH set.
+-#
+-# NOTE: qgit must be installed in git directory, among git exe files
+-# for this to work. If you install with 'make install' this is already
+-# done for you.
+-#
+-# Remember to set proper GIT_EXEC_DIR value at the beginning of this file
+-#
+-win32 {
+-    !exists($${GIT_EXEC_DIR}/git.exe) {
+-        error("I cannot found git files, please set GIT_EXEC_DIR in 'src.pro' file")
+-    }
+-    QGIT_BAT = ../start_qgit.bat
+-    CUR_PATH = $$system(echo %PATH%)
+-    LINE_1 = $$quote(set PATH=$$CUR_PATH;$$GIT_EXEC_DIR;)
+-    LINE_2 = $$quote(set PATH=$$CUR_PATH;)
+-
+-    qgit_launcher.commands =    @echo @echo OFF > $$QGIT_BAT
+-    qgit_launcher.commands += && @echo $$LINE_1 >> $$QGIT_BAT
+-    qgit_launcher.commands += && @echo bin\\$$TARGET >> $$QGIT_BAT
+-    qgit_launcher.commands += && @echo $$LINE_2 >> $$QGIT_BAT
+-
+-    QMAKE_EXTRA_TARGETS += qgit_launcher
+-    PRE_TARGETDEPS += qgit_launcher
+-}

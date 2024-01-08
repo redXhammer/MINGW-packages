@@ -1,0 +1,56 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Ingo Maindorfer <ingo@liquidcooling.de>
+# Based on work by AlexWMF <alexxwmf@gmail.com>
+
+_realname=qgit
+pkgbase=mingw-w64-${_realname}
+pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+pkgver=2.10
+pkgrel=1
+pkgdesc="QGit"
+arch=('any')
+mingw_arch=('mingw32' 'mingw64' 'ucrt64' 'clang64' 'clang32' 'clangarm64')
+license=("custom:${_realname}")
+#url="https://qwt.sourceforge.io/"
+makedepends=("${MINGW_PACKAGE_PREFIX}-cc"
+             "${MINGW_PACKAGE_PREFIX}-qt5-base"
+             #"${MINGW_PACKAGE_PREFIX}-qt5-svg"
+             #"${MINGW_PACKAGE_PREFIX}-qt5-tools"
+             )
+             
+depends=("git")
+               
+source=("https://github.com/tibirna/${_realname}/archive/refs/tags/${_realname}-${pkgver}.tar.gz"
+        "0001-remove_start_qgit.patch")
+
+sha256sums=(SKIP
+            SKIP)
+
+prepare() {
+
+  cd ${_realname}-${_realname}-${pkgver}
+
+  patch -p1 -i "${srcdir}/0001-remove_start_qgit.patch"
+}
+
+build() {
+  [[ -d "${srcdir}/build-${MSYSTEM}" ]] && rm -rf "${srcdir}/build-${MSYSTEM}"
+  mkdir -p "${srcdir}/build-${MSYSTEM}" && cd "${srcdir}/build-${MSYSTEM}"
+
+  qmake target.path=${MINGW_PREFIX}/bin/ CONFIG-=debug_and_release CONFIG+=release ../${_realname}-${_realname}-${pkgver}/qgit.pro
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${MSYSTEM}"
+
+  # Fix Makefiles
+  local PREFIX_WIN=$(cygpath -am ${MINGW_PREFIX})
+  find "${srcdir}/build-${MSYSTEM}" -type f \( -name 'Makefile*' \) \
+      -exec sed -i -e "s|${PREFIX_WIN:0:2}\$(INSTALL_ROOT|\$(INSTALL_ROOT|g" {} \;
+  find "${srcdir}/build-${MSYSTEM}" -type f \( -name 'Makefile*' \) \
+      -exec sed -i -e "s|)${PREFIX_WIN:2}|)${MINGW_PREFIX}|g" {} \;
+
+  make INSTALL_ROOT="${pkgdir}" install
+}
